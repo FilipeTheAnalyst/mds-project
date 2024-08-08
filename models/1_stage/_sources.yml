@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+    - name: atp_tour_raw
+      schema: raw
+      tables:    
+        - name: matches
+          description: Table with all the matches data. Each record represents a match.

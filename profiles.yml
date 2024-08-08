@@ -2,7 +2,7 @@ atp_tour:
   outputs:
     dev:
       type: duckdb
-      path: atp_pipeline.duckdb
+      path: atp_tour.duckdb
       threads: 1
 
   target: dev
