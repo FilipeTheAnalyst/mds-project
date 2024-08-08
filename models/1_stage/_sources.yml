@@ -6,3 +6,112 @@ sources:
       tables:    
         - name: matches
           description: Table with all the matches data. Each record represents a match.
+          columns:
+            - name: tourney_id
+              description: >
+                A unique identifier for each tournament, such as 2020-888. The exact formats are borrowed from several different sources, so while the first four characters are always the year,
+                the rest of the ID doesn't follow a predictable structure.
+              tests:
+                - dbt_expectations.expect_column_values_to_match_regex:
+                    name: tourney_id_matches_regex
+                    regex: '^\d{4}-\S+$'
+
+            - name: surface
+              description: type of surface the match was played
+              tests:
+                - dbt_expectations.expect_column_values_to_be_in_set:
+                    value_set: ['Hard','Grass','Carpet', 'Clay']
+                    row_condition: "surface is not null"
+
+            - name: draw_size
+              description: number of players in the draw, often rounded up to the nearest power of 2. (For instance, a tournament with 28 players may be shown as 32.)
+              tests:
+                - dbt_expectations.expect_column_values_to_be_between:
+                    min_value: 2
+                    max_value: 128
+                    row_condition: "draw_size is not null"
+
+            - name: tourney_level
+              description: "letter to identify the level of the tournament (ex: G = Grand Slam)"
+              tests:
+                - dbt_expectations.expect_column_values_to_be_in_set:
+                    value_set: ['A','D','F', 'G','M']
+
+            - name: tourney_date
+              description: eight digits, YYYYMMDD, usually the Monday of the tournament week.
+
+            - name: match_num
+              description: a match-specific identifier. Often starting from 1, sometimes counting down from 300, and sometimes arbitrary. 
+              tests:
+                - dbt_expectations.expect_column_min_to_be_between:
+                    min_value: 1
+              
+            - name: winner_id
+              description: the player_id to identify the winner of the match 
+              tests:
+                - dbt_expectations.expect_column_min_to_be_between:
+                    min_value: 1
+
+            - name: winner_name
+              description: The name corresponding to the winner_id 
+              tests:
+                - dbt_expectations.expect_column_values_to_match_regex:
+                      name: winner_name_matches_regex
+                      regex: '^\w.+$'
+
+            - name: winner_hand
+              description: R = right, L = left, U = unknown. For ambidextrous players, this is their serving hand.
+              tests:
+                - dbt_expectations.expect_column_values_to_be_in_set:
+                    value_set: ['R','L','U','A']
+                    row_condition: "winner_hand is not null"
+
+            - name: winner_ioc
+              description: ISO country code of winning player
+              tests:
+                - dbt_expectations.expect_column_values_to_match_regex:
+                      name: winner_ioc_matches_regex
+                      regex: '^\w{3}$'
+                      row_condition: "winner_ioc is not null"
+
+
+            - name: loser_id
+              description: the player_id to identify the loser of the match 
+              tests:
+                  - dbt_expectations.expect_column_min_to_be_between:
+                      min_value: 1
+
+            - name: loser_name
+              description: The name corresponding to the loser_id 
+              tests:
+                - dbt_expectations.expect_column_values_to_match_regex:
+                      name: loser_name_matches_regex
+                      regex: '^\w.+$'
+
+            - name: loser_hand
+              description: R = right, L = left, U = unknown. For ambidextrous players, this is their serving hand.
+              tests:
+                - dbt_expectations.expect_column_values_to_be_in_set:
+                    value_set: ['R','L','U', 'A']
+                    row_condition: "loser_hand is not null"
+
+            - name: loser_ioc
+              description: ISO country code of winning player
+              tests:
+                - dbt_expectations.expect_column_values_to_match_regex:
+                      name: loser_ioc_matches_regex
+                      regex: '^\w{3}$'
+                      row_condition: "loser_ioc is not null"
+
+            - name: loser_age
+              description: Age of losing player (decimal)
+              tests:
+                - dbt_expectations.expect_column_values_to_be_between:
+                    min_value: 14
+                    max_value: 100
+                    row_condition: "loser_age is not null"
+
+            - name: score
+              description: Score of the match
+
+              
