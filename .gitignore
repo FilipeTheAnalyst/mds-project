@@ -1,0 +1,18 @@
+# python virtual environments
+venv/
+.venv/
+
+# local developer workstation settings
+.vscode/
+.DS_Store
+.user.yml
+
+# dbt folders and files
+target/
+dbt_packages/
+logs/
+package-lock.yml
+.gitkeep
+
+# local dwh database
+*duckdb*
