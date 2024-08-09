@@ -1,0 +1,75 @@
+name: Slim CI Job
+
+on:
+  pull_request:
+    branches: 
+      - develop
+      - uat
+      - main
+
+jobs:
+  ci-workflow:
+    runs-on: ubuntu-latest
+    env:
+      SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+      DBT_USER: ${{ secrets.DBT_USER }}
+      DBT_PASSWORD: ${{ secrets.DBT_PASSWORD }}
+      SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
+      SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
+      SNOWFLAKE_SCHEMA: "${{ format('{0}_{1}', 'DBT_CI_PR_NUM', github.event.pull_request.number) }}" 
+      SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+      DBT_TARGET_ENV: "ci"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set Up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install requirements
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt  
+
+      - name: Install dbt dependencies
+        run: dbt deps
+
+      - name: Run SQL linter
+        run: sqlfluff lint ./models
+
+      - name: Run SQL fixer
+        run: sqlfluff fix ./models --show-lint-violations
+
+      - name: Rum YAML linter
+        run: yamllint ./models ./dbt_project.yml ./packages.yml ./profiles.yml
+
+      - name: Run YAML fixer
+        run: yamlfix ./models
+    
+      - name: Run pre-commit hooks
+        run: pre-commit run
+
+      - name: Read dbt manifest from Snowflake
+        run: |
+          mkdir -p prod-run-artifacts
+          python read_manifest_from_sf.py
+        env:
+          SNOWFLAKE_STAGE: ${{ secrets.SNOWFLAKE_STAGE }}
+          SNOWFLAKE_PROD_SCHEMA: ${{ secrets.SNOWFLAKE_PROD_SCHEMA }}
+
+      - name: Check for manifest.json
+        id: check-manifest
+        run: |
+          if [ ! -f "./prod-run-artifacts/manifest.json" ]; then
+            echo "Manifest file not found."
+            echo "DBT_BUILD_COMMAND=dbt build --exclude tag:elementary --target ${{ env.DBT_TARGET_ENV }}" >> $GITHUB_ENV
+          else
+            echo "Manifest file found."
+            echo "DBT_BUILD_COMMAND=dbt build --select state:modified+ --defer --state prod-run-artifacts --exclude tag:elementary --target ${{ env.DBT_TARGET_ENV }}" >> $GITHUB_ENV
+          fi
+
+      - name: dbt build
+        run: ${{ env.DBT_BUILD_COMMAND }}

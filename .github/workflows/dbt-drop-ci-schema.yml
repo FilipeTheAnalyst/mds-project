@@ -1,0 +1,40 @@
+name: Drop CI schema on PR close
+
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  drop-ci-schema:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: Set Up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install requirements
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt  
+
+      - name: Install dbt dependencies
+        run: dbt deps
+
+      - name: drop PR schemas
+        run: dbt run-operation drop_pr_ci_schemas --args "{'PR_number'":" '${PR_NUM}' }"
+        env:
+          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+          DBT_USER: ${{ secrets.DBT_USER }}
+          DBT_PASSWORD: ${{ secrets.DBT_PASSWORD }}
+          SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
+          SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
+          SNOWFLAKE_SCHEMA: ""
+          SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+          PR_NUM: ${{ github.event.number }}
