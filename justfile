@@ -87,7 +87,6 @@ format-yml:
 lint-format:
     just format-sql
     just lint-sql
-    just lint-yml
 
 dbt-check:
     pre-commit run --all-files
