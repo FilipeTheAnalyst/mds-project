@@ -3,6 +3,7 @@ atp_tour:
     dev:
       type: duckdb
       path: atp_tour.duckdb
+      schema: fbalseiro
       threads: 1
 
   target: dev
