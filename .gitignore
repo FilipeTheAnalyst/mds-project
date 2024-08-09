@@ -12,6 +12,3 @@ dbt_packages/
 logs/
 package-lock.yml
 .gitkeep
-
-# local dwh database
-*duckdb*
