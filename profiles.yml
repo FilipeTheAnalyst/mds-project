@@ -5,5 +5,10 @@ atp_tour:
       path: atp_tour.duckdb
       schema: fbalseiro
       threads: 1
+    ci:
+      type: duckdb
+      path: atp_tour.duckdb
+      schema: fbalseiro
+      threads: 1
 
   target: dev
