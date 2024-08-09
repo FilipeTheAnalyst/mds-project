@@ -23,13 +23,8 @@ clean-targets:         # directories to be removed by `dbt clean`
   - "dbt_packages"
 
 models:
-  atp_tour:
+  mds_pipeline:
     +materialized: "{{ 'table' if target.name == 'prod' else 'view' }}"
     +pre-hook: "{% if target.name == 'dev' %}{{ find_sources_for_model(this.name) }}{% endif %}"
     1_stage:
-      +schema: stage
       +tags: staging
-    2_intermediate:
-      +schema: intermediate
-    3_marts:
-      +schema: mart

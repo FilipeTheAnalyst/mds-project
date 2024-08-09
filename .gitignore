@@ -1,5 +1,4 @@
 # python virtual environments
-venv/
 .venv/
 
 # local developer workstation settings
