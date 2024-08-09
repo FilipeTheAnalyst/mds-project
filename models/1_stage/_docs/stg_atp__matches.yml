@@ -3,7 +3,7 @@ version: 2
 models:
   - name: stg_atp__matches
     description: Staging model for atp matches
-    tests:
+    data_tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - tournament_id
@@ -11,5 +11,5 @@ models:
             - match_id
     columns:
       - name: tournament_id
-        tests: 
+        data_tests: 
           - not_null
