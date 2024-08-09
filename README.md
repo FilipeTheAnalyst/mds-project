@@ -14,14 +14,16 @@ For this project make sure you have following installed:
 -   [Python](https://www.python.org/downloads/)
 -   [DuckDB CLI](https://duckdb.org/docs/installation/index)
 
-## Getting started with this project
+## Project Setup
 
+### Clone Repository
 Clone the [ATP Tour project](https://github.com/achilala/dbt-atp-tour) to somewhere on your local directory
 ```bash
-git clone https://github.com/achilala/dbt-atp-tour.git
-cd dbt-atp-tour
+git clone https://github.com/FilipeTheAnalyst/mds-project.git
+cd mds-project
 ```
 
+### Create a virtual environment
 Create a virtual environment for your python dependencies and activate it. Your python dependencies will be installed here.
 ```bash
 python3 -m venv .venv/dbt-atp-tour
@@ -30,6 +32,8 @@ source .venv/dbt-atp-tour/bin/activate
 
 Install the python dependencies
 ```bash
+pip install --upgrade pip
+
 pip install -r requirements.txt
 ```
 
@@ -38,7 +42,7 @@ Some of the installed modules require reactivating your virtual environment to t
 deactivate
 source .venv/dbt-atp-tour/bin/activate
 ```
-
+## Extract & Load
 Running this python script will read the ATP tour data into a duckdb database called `atp_tour.duckdb`
 ```python 
 python3 el_sources_data.py
@@ -46,6 +50,7 @@ python3 el_sources_data.py
 
 A new file called `atp_tour.duckdb` should appear in the folder, and this is the `DuckDB` database file. The reason why `DuckDB` is my-go-to database is because it's very light, simple to setup and built for analytical processing.
 
+## Transformation
 Before running `dbt` makes sure the `profiles.yml` file is setup corrently. The `path` in the file should point to your duckdb database and on mine it looks something like this `atp_tour.duckdb`.
 
 Test your connection and adjust your `profiles.yml` settings accordingly until you get a successful test.
