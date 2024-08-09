@@ -13,6 +13,7 @@ For this project make sure you have following installed:
 -   [Git](https://git-scm.com/downloads)
 -   [Python](https://www.python.org/downloads/)
 -   [DuckDB CLI](https://duckdb.org/docs/installation/index)
+-   [Just](https://github.com/casey/just) - Command shortcuts manager
 
 ## Project Setup
 
@@ -68,10 +69,60 @@ To generate and view the project documentation run the following.
 dbt docs generate && dbt docs serve
 ```
 
-A browser should open with the docs site or [click here](http://127.0.0.1:8080/#!/overview). To cancel press the following on the keyboard
-```bash
-^c
+### Use Formatter & Linter tools to define standards and avoid PR nits
+It is beneficial to have a standard style guide to ensure the code has a consistent feel.
+Having style standards automated ensures that it is easy to follow, and any dev new to the team is empowered to focus on the core feature delivery and not spend time fixing formatting issues.
+
+There are two main concepts to understand
+
+1. **Linter** tells us what’s wrong with our code regarding style and code correctness.
+1. **Formatter** formats the code to conform to the standard style.
+
+#### Lint and format sql with sqlfluff
+sqlfluff is an SQL linter and a formatter. While there are multiple sql linters and formatters, we chose sqlfluff since it has good support for dbt (macros, jinja2, etc). We use the [.sqlfluff](./.sqlfluff) to provide dbt specific settings (like where the dbt project file is, how to format macros, etc) and the [.sqlfluffignore](./.sqlfluffignore) to ignore the folders to format.
+
+To check all the possible rules that can be applied check out the [documentation](https://docs.sqlfluff.com/en/stable/configuration.html).
+
+I've followed the rules mentioned on this [article](https://dbtips.substack.com/p/get-the-ultimate-developer-experience) to start simple.
+
+ ``` bash
+sqlfluff lint ./models # just lint-sql
 ```
+
+ ``` bash
+sqlfluff fix ./models --show-lint-violations # just format-sql
+```
+
+#### Lint and format yaml with yamllint
+Similar to the process above for SQL we use yamllint to lint and format our yaml files.
+The file [.yamllint](./.yamllint) contains the settings applied.
+
+ ``` bash
+yamllint ./models ./snapshots ./dbt_project.yml ./packages.yml ./profiles.yml # just lint-yml
+```
+
+ ``` bash
+yamlfix ./models # just format-yml
+```
+
+To check all the possible rules that can be applied check out the [documentation](https://yamllint.readthedocs.io/en/stable/rules.html).
+
+I've followed the rules mentioned on this [article](https://blog.montrealanalytics.com/automating-dbt-development-workflows-with-pre-commit-b6c7ca708f7) with a couple modifications changing the severity level from error to warning.
+
+#### Autorun linting & checks locally before opening a PR to save on CI costs
+Usually, your CI pipeline will run checks and tests to ensure the PR is up to standard. You can reduce the time taken at CI runs by preventing issues by adding the checks as a pre-commit git hook. The pre-commit git hook ensures that checks and tests run before a developer puts up a PR, saving potential CI time (if there are issues with the code).
+
+As shown below, you can add a pre-commit hook to your .git/hooks folder.
+
+ ``` bash
+echo -e '
+#!/bin/sh
+just ci
+' > .git/hooks/pre-commit
+chmod ug+x .git/hooks/*
+```
+
+Now, the `just ci` command will run each time you try to add a commit (just ci will run before the code commit automatically).
 
 Use the `DuckDB CLI` to query the `DuckDB` database. If you don't already have DuckDB v0.8.1 or higher installed then proceed to do the following:
 
