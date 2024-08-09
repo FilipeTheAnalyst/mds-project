@@ -1,6 +1,5 @@
-
+---
 version: 2
-
 models:
   - name: stg_atp__matches
     description: Staging model for atp matches
@@ -9,9 +8,8 @@ models:
           combination_of_columns:
             - tournament_id
             - tournament_name
-            - match_num
-
+            - match_id
     columns:
       - name: tournament_id
-        tests:
+        tests: 
           - not_null
