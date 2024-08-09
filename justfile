@@ -89,7 +89,7 @@ lint-format:
     just lint-sql
 
 dbt-check:
-    pre-commit run --all-files
+    pre-commit run
 
 dev-run:
     just test-raw
