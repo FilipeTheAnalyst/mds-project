@@ -1,0 +1,17 @@
+repos:
+  - repo: https://github.com/dbt-checkpoint/dbt-checkpoint
+    rev: v1.2.1
+    hooks:
+    - id: dbt-compile
+    - id: dbt-docs-generate
+    - id: check-model-has-properties-file
+      name: Check that all models are listed in a YAML file
+      files: ^models/
+    - id: check-source-table-has-description
+    - id: check-model-has-description
+      name: Check that all the models have description
+      files: ^models/
+    - id: check-model-has-tests
+      name: Check that all models have tests
+      args: ["--test-cnt", "2", "--"]
+      files: ^models/
