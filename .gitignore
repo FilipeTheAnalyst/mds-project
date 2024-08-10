@@ -12,3 +12,6 @@ dbt_packages/
 logs/
 package-lock.yml
 .gitkeep
+
+#secrets
+.env
