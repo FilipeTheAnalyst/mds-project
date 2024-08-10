@@ -11,9 +11,10 @@ This is a MDS (Modern Data Stack) project which uses the [ATP Tennis Rankings, R
 For this project make sure you have following installed:
 
 -   [Git](https://git-scm.com/downloads)
--   [Python](https://www.python.org/downloads/)
+-   [Python 3.11](https://www.python.org/downloads/)
 -   [DuckDB CLI](https://duckdb.org/docs/installation/index)
--   [Just](https://github.com/casey/just) - Command shortcuts manager
+-   [Homebrew](https://brew.sh/) - Package manager for macOS or Linux
+-   [Snowflake](https://www.snowflake.com/) - Data Warehouse (Create a 30-days free trial account)
 
 ## Project Setup
 
@@ -24,10 +25,20 @@ git clone https://github.com/FilipeTheAnalyst/mds-project.git
 cd mds-project
 ```
 
-### Create a virtual environment
+---
+
+### Setup Your Environment
+
+Execute the following command to install the required packages using [Homebrew](https://brew.sh/):
+
+``` shell
+brew install python@3.11 virtualenv just rilldata/tap/rill
+```
+
+#### Create a virtual environment
 Create a virtual environment for your python dependencies and activate it. Your python dependencies will be installed here.
 ```bash
-python3 -m venv .venv/dbt-atp-tour
+virtualenv .venv/dbt-atp-tour --python=python3.11
 source .venv/dbt-atp-tour/bin/activate
 ```
 
@@ -43,6 +54,29 @@ Some of the installed modules require reactivating your virtual environment to t
 deactivate
 source .venv/dbt-atp-tour/bin/activate
 ```
+
+#### Create a `.env` file to store credentials
+
+- Rename the [`env.sample`](env.sample) file to `.env` on the repository main directory
+- Add `.env` file contents to virtual environment activate script
+ ```bash
+cat .env >> .venv/dbt-atp-tour/bin/activate
+```
+- Check how the activate script looks now
+ ```bash
+cat .venv/dbt-atp-tour/bin/activate | tail -10
+```
+- Now let's deactivate and activate the virtual environment again
+ ```bash
+deactivate
+source .venv/dbt-atp-tour/bin/activate
+```
+- Let's checkout some of the environment variables
+ ```bash
+echo $DBT_USER
+echo $DBT_PASSWORD
+```
+
 ## Extract & Load
 Running this python script will read the ATP tour data into a duckdb database called `atp_tour.duckdb`
 ```python 
