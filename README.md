@@ -6,6 +6,31 @@ This is a MDS (Modern Data Stack) project which uses the [ATP Tennis Rankings, R
 
 ![Architecture](/_project_docs/Modern_Data_Stack_Project_Architecture.png)
 
+A brief explanation of all the building blocks used on this architecture:
+
+### Sources
+
+- .csv files from a GitHub repository with [ATP Tennis Rankings, Results, and Stats](https://github.com/JeffSackmann/tennis_atp) dataset.
+- .json file from a [REST API](https://restcountries.com/v3.1/all) with a countries dataset.
+
+### Extract & Load
+
+- **dltHub**: Python library for extract & load. You can dlt to your Python scripts to load data from various and oftn messy data sources into well-structured, live datasets. This approach is used to extract and load data into `Duckdb`.
+- **Snowflake Connector for Python**: The Snowflake Connector for Python provides an interface for developing Python applications that can connect to Snowflake and perform all standard operations. This approach is used to extract and load data into `Snowflake`.
+
+**Note**: Both scenarios will be triggered by a `GitHub Actions` workflow to perform batch jobs.
+
+### Transform
+
+- **dbt Core**: dbt (Data build tool) takes care of the transformation layer to modularize and centralize your analytics code, while also providing best practices from software engineering workflows with version control and data quality features combined with documentation in one single tool.
+dbt compiles and runs your analytics code against your data plaform (in this scenario `Duckdb` and `Snowflake`), enabling you and your team to collaborate on a single source of truth for metrics, insights and business definitions.
+
+### BI
+
+- **Rill**: Rill is a data analytics platform designed to create fast and interactive operational dashboards. Unlike many traditional business intelligence (BI) tools, Rill comes with an embedded in-memory database that allows for near-instantaneous querying and data exploration. This feature enables users to quickly pivot, slice, and drill down into their data without the typical delays associated with other BI solutions.
+
+Rill is particularly useful for operational and exploratory analytics, offering tools to transform datasets using SQL, and it integrates smoothly with other data sources and analytics platforms like Tableau and Looker. Additionally, Rill supports real-time analytics by working with both batch and streaming data from various sources such as Apache Kafka and Google BigQuery​
+
 ## Pre-requisites
 
 For this project make sure you have following installed:
@@ -34,6 +59,27 @@ Execute the following command to install the required packages using [Homebrew](
 ``` shell
 brew install python@3.11 virtualenv just rilldata/tap/rill
 ```
+
+Use the `DuckDB CLI` to query the `DuckDB` database. If you don't already have DuckDB v0.8.1 or higher installed then proceed to do the following:
+
+Download and unzip the CLI
+```bash
+curl -OL https://github.com/duckdb/duckdb/releases/download/v0.9.1/duckdb_cli-osx-universal.zip
+unzip duckdb_cli-osx-universal.zip
+```
+
+Open the database using the downloaded DuckDB CLI like this
+```bash
+./duckdb --readonly atp_tour.duckdb
+```
+
+And if you already have DuckDB install then open the database like this
+```bash
+duckdb --readonly atp_tour.duckdb
+```
+---
+
+**Note:** An alternative way to query the `DuckDB` database is to install [DBeaver](https://dbeaver.io/) client (also works with Snowflake if preferred).
 
 #### Create a virtual environment
 Create a virtual environment for your python dependencies and activate it. Your python dependencies will be installed here.
@@ -78,6 +124,9 @@ echo $DBT_PASSWORD
 ```
 
 ## Extract & Load
+
+### DltHub
+
 Running this python script will read the ATP tour data into a duckdb database called `atp_tour.duckdb`
 ```python 
 python3 el_sources_data.py
@@ -158,23 +207,7 @@ chmod ug+x .git/hooks/*
 
 Now, the `just ci` command will run each time you try to add a commit (just ci will run before the code commit automatically).
 
-Use the `DuckDB CLI` to query the `DuckDB` database. If you don't already have DuckDB v0.8.1 or higher installed then proceed to do the following:
 
-Download and unzip the CLI
-```bash
-curl -OL https://github.com/duckdb/duckdb/releases/download/v0.9.1/duckdb_cli-osx-universal.zip
-unzip duckdb_cli-osx-universal.zip
-```
-
-Open the database using the downloaded DuckDB CLI like this
-```bash
-./duckdb --readonly atp_tour.duckdb
-```
-
-And if you already have DuckDB install then open the database like this
-```bash
-duckdb --readonly atp_tour.duckdb
-```
 
 To sample the players data try the following
 ```sql
