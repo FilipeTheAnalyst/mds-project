@@ -48,26 +48,6 @@ debug:
 check-orphan-tests:
     python3 check_orphans.py
 
-################# DQ REPORT ####################
-
-# Generate elementary models
-elem-models:
-    dbt run --select elementary
-
-elem-models-prod:
-    dbt run --select elementary --target prod
-
-# run elementary tests
-elem-test:
-    dbt test --select tag:elementary
-
-elem-test-prod:
-    dbt test --select tag:elementary --target prod
-
-# Generate DQ report
-dq-report:
-    edr report
-
 ################## LINT & FORMATTING ###########
 
 lint-sql:
