@@ -120,16 +120,62 @@ echo $DBT_PASSWORD
 
 **Note:** You have to run `source .venv/dbt-atp-tour/bin/activate` each time you boot your development workstation.
 
+#### Snowflake Setup
+
+Perform the following [commands](./_project_docs/snowflake_setup.md) in a Snowflake SQL worksheet to create the required objects to successfully deploy the project.
+
 ## Extract & Load
 
-### DltHub
+### Snowflake Python Connector
 
-Running this python script will read the ATP tour data into a duckdb database called `atp_tour.duckdb`
+Running this python script will read the ATP tour and countries data and upload the files into a Snowflake stage called `dbt_artifacts`.
 ```python 
-python3 el_sources_data.py
+python3 .github/scripts/upload_to_snowflake.py
 ```
 
-A new file called `atp_tour.duckdb` should appear in the folder, and this is the `DuckDB` database file. The reason why `DuckDB` is my-go-to database is because it's very light, simple to setup and built for analytical processing.
+To load data from the stage into tables you should create a Stored Procedure with the [following script](/_project_docs/snowflake_load_data_stage_table.md) on a Snowflake SQL worksheet.
+
+To call the stored procedure you can run the following command on a Snowfake SQL worksheet:
+
+```sql 
+CALL load_data_from_stage('ATP_TOUR', 'RAW', 'DBT_ARTIFACTS');
+```
+
+To automate this step to be performed in a daily basis you should create the following ***task*** in Snowflake:
+
+```sql 
+CREATE OR REPLACE task RAW_DATA_LOAD_TASK
+	warehouse=COMPUTE_WH
+	schedule='USING CRON 15 10 * * * UTC'
+	AS CALL load_data_from_stage('ATP_TOUR', 'RAW', 'DBT_ARTIFACTS');
+```
+
+To activate the task run this command:
+
+```sql 
+ALTER TASK RAW_DATA_LOAD_TASK RESUME;
+```
+
+### Automate Extract & Load to Snowflake stage with GitHub Actions
+To make this process fully automated, I've created a GitHub Actions [workflow](./.github/workflows/upload_to_snowflake.yml) that runs daily at 10:00AM UTC.
+
+#### GitHub Actions (Workfllows)
+
+GitHub Actions is a feature that enables to build, test and deploy your code right from GitHub, following CI/CD best practices.
+
+To define a workflow you need to create a `.yml` file under `.github/workflows/` folder.
+
+[Here](https://docs.github.com/en/actions) is the documentation for more details.
+
+#### Github Secrets
+In order to make the environment variables loaded on your local development workstations available to GitHub Actions workflows, GitHub uses ***secrets*** to store that sensitive information.
+[Here](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository) is the documentation with the steps to follow to achieve that.
+
+**Note**: If you chose the Forking approach, you'll need to perform this step to make your workflow run successfully. 
+
+At the end of your setup, your GitHub secrets definition should look like this:
+
+![GitHub E&L secrets](/_project_docs/github_el_secrets.png)
 
 ## Transformation
 Before running `dbt` makes sure the `profiles.yml` file is setup corrently. The `path` in the file should point to your duckdb database and on mine it looks something like this `atp_tour.duckdb`.
@@ -203,14 +249,3 @@ chmod ug+x .git/hooks/*
 ```
 
 Now, the `just ci` command will run each time you try to add a commit (just ci will run before the code commit automatically).
-
-
-
-To sample the players data try the following
-```sql
-summarize mart.dim_player;
-
-select *
-  from mart.dim_player
- order by dim_player_key;
-```
