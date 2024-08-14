@@ -15,7 +15,6 @@ A brief explanation of all the building blocks used on this architecture:
 
 ### Extract & Load
 
-- **dltHub**: Python library for extract & load. You can dlt to your Python scripts to load data from various and oftn messy data sources into well-structured, live datasets. This approach is used to extract and load data into `Duckdb`.
 - **Snowflake Connector for Python**: The Snowflake Connector for Python provides an interface for developing Python applications that can connect to Snowflake and perform all standard operations. This approach is used to extract and load data into `Snowflake`.
 
 **Note**: Both scenarios will be triggered by a `GitHub Actions` workflow to perform batch jobs.
@@ -23,7 +22,7 @@ A brief explanation of all the building blocks used on this architecture:
 ### Transform
 
 - **dbt Core**: dbt (Data build tool) takes care of the transformation layer to modularize and centralize your analytics code, while also providing best practices from software engineering workflows with version control and data quality features combined with documentation in one single tool.
-dbt compiles and runs your analytics code against your data plaform (in this scenario `Duckdb` and `Snowflake`), enabling you and your team to collaborate on a single source of truth for metrics, insights and business definitions.
+dbt compiles and runs your analytics code against your data plaform (in this scenario `Snowflake`), enabling you and your team to collaborate on a single source of truth for metrics, insights and business definitions.
 
 ### BI
 
@@ -37,18 +36,34 @@ For this project make sure you have following installed:
 
 -   [Git](https://git-scm.com/downloads)
 -   [Python 3.11](https://www.python.org/downloads/)
--   [DuckDB CLI](https://duckdb.org/docs/installation/index)
 -   [Homebrew](https://brew.sh/) - Package manager for macOS or Linux
 -   [Snowflake](https://www.snowflake.com/) - Data Warehouse (Create a 30-days free trial account)
 
 ## Project Setup
 
-### Clone Repository
+There are 2 possible scenarios to setup this project:
+
+- **Cloning**: By performing a clone of the repository you can pull changes from the repository to your local repository, but you can't push changes (I restrict access).
+
+![Cloning diagram](/_project_docs/cloning_repository.jpg)
+
+- **Forking**: With forking a one-off copy is performed and you can push/pull to your own copy of the repository.
+
+![Forking diagram](/_project_docs/forking_repository.jpg)
+
+My recommendation is to use the **Forking** approach that will give you more autonomy to reproduce the project and make your changes.
+
+### Option 1: Clone Repository
 Clone the [ATP Tour project](https://github.com/achilala/dbt-atp-tour) to somewhere on your local directory
 ```bash
 git clone https://github.com/FilipeTheAnalyst/mds-project.git
 cd mds-project
 ```
+
+### Option 2: Fork Repository
+To fork the repository please follow these instructions from [GitHub documentation](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo#forking-a-repository).
+
+After performing these steps, you can then clone your forked repository to your local development workstation. You can follow the same steps mentioned on the topic above. If you have any doubts, you also have [instructions here](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo#cloning-your-forked-repository) on how to do it.
 
 ---
 
@@ -59,27 +74,6 @@ Execute the following command to install the required packages using [Homebrew](
 ``` shell
 brew install python@3.11 virtualenv just rilldata/tap/rill
 ```
-
-Use the `DuckDB CLI` to query the `DuckDB` database. If you don't already have DuckDB v0.8.1 or higher installed then proceed to do the following:
-
-Download and unzip the CLI
-```bash
-curl -OL https://github.com/duckdb/duckdb/releases/download/v0.9.1/duckdb_cli-osx-universal.zip
-unzip duckdb_cli-osx-universal.zip
-```
-
-Open the database using the downloaded DuckDB CLI like this
-```bash
-./duckdb --readonly atp_tour.duckdb
-```
-
-And if you already have DuckDB install then open the database like this
-```bash
-duckdb --readonly atp_tour.duckdb
-```
----
-
-**Note:** An alternative way to query the `DuckDB` database is to install [DBeaver](https://dbeaver.io/) client (also works with Snowflake if preferred).
 
 #### Create a virtual environment
 Create a virtual environment for your python dependencies and activate it. Your python dependencies will be installed here.
@@ -104,6 +98,7 @@ source .venv/dbt-atp-tour/bin/activate
 #### Create a `.env` file to store credentials
 
 - Rename the [`env.sample`](env.sample) file to `.env` on the repository main directory
+- Add the missing credentials that apply to your Snowflake account (ex: the account value corresponds to your account url text before snowflake.computing.com)
 - Add `.env` file contents to virtual environment activate script
  ```bash
 cat .env >> .venv/dbt-atp-tour/bin/activate
@@ -122,6 +117,8 @@ source .venv/dbt-atp-tour/bin/activate
 echo $DBT_USER
 echo $DBT_PASSWORD
 ```
+
+**Note:** You have to run `source .venv/dbt-atp-tour/bin/activate` each time you boot your development workstation.
 
 ## Extract & Load
 
