@@ -1,8 +1,9 @@
 WITH source AS (
     SELECT *
     FROM {{ source('atp_tour_raw', 'atp_matches') }}
-)
-, renamed AS (
+),
+
+renamed AS (
     SELECT
         tourney_id::VARCHAR(50) AS tournament_id,
         tourney_name::VARCHAR(100) AS tournament_name,
@@ -13,7 +14,7 @@ WITH source AS (
             WHEN tourney_level = 'G' THEN 'Grand Slams'
             WHEN tourney_level = 'M' THEN 'Masters 1000s'
         END::VARCHAR(25) AS tournament_level,
-        TO_DATE(TO_VARCHAR(tourney_date),'YYYYMMDD') AS tournament_date,
+        TO_DATE(TO_VARCHAR(tourney_date), 'YYYYMMDD') AS tournament_date,
         surface::VARCHAR(10) AS surface,
         draw_size::SMALLINT AS draw_size,
         match_num::SMALLINT AS match_id,
@@ -107,10 +108,11 @@ WITH source AS (
         w_svgms::INT + l_svgms::INT AS total_num_of_serve_games,
         w_bpsaved::INT + l_bpsaved::INT AS total_num_of_break_pts_saved,
         w_bpfaced::INT + l_bpfaced::INT AS total_num_of_break_pts_faced,
-        abs(winner_age::TINYINT - loser_age::TINYINT) AS age_difference
+        ABS(winner_age::TINYINT - loser_age::TINYINT) AS age_difference
     FROM source
-)
-, final AS (
+),
+
+final AS (
     SELECT
 
         {{ dbt_utils.generate_surrogate_key(['tournament_id', 'tournament_date']) }}
@@ -122,5 +124,6 @@ WITH source AS (
         *
     FROM renamed
 )
+
 SELECT *
 FROM final
