@@ -9,6 +9,8 @@ models:
             - tournament_id
             - tournament_name
             - match_id
+      - dbt_expectations.expect_table_row_count_to_equal_other_table:
+          compare_model: source('atp_tour_raw', 'atp_matches')
     columns:
       - name: tournament_id
         data_tests: 

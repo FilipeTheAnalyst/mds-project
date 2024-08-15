@@ -4,7 +4,7 @@ sources:
     - name: atp_tour_raw
       schema: raw
       tables:    
-        - name: matches
+        - name: atp_matches
           description: Table with all the matches data. Each record represents a match.
           columns:
             - name: tourney_id
@@ -14,7 +14,7 @@ sources:
               data_tests:
                 - dbt_expectations.expect_column_values_to_match_regex:
                     name: tourney_id_matches_regex
-                    regex: '^\d{4}-\S+$'
+                    regex: '^\\d{4}-\\S+$'
 
             - name: surface
               description: type of surface the match was played
@@ -22,7 +22,7 @@ sources:
                 - dbt_expectations.expect_column_values_to_be_in_set:
                     name: surface_expected_values
                     value_set: ['Hard','Grass','Carpet', 'Clay']
-                    row_condition: "surface is not null"
+                    row_condition: 'surface is not null'
 
             - name: draw_size
               description: number of players in the draw, often rounded up to the nearest power of 2. (For instance, a tournament with 28 players may be shown as 32.)
@@ -31,7 +31,7 @@ sources:
                     name: draw_size_expected_values
                     min_value: 2
                     max_value: 128
-                    row_condition: "draw_size is not null"
+                    row_condition: 'draw_size is not null'
 
             - name: tourney_level
               description: "letter to identify the level of the tournament (ex: G = Grand Slam)"
@@ -51,31 +51,30 @@ sources:
                     min_value: 1
               
             - name: winner_id
-              description: the player_id to identify the winner of the match 
+              description: the player_id to identify the winner of the match  
               data_tests:
                 - dbt_expectations.expect_column_min_to_be_between:
                     name: winner_id_min_expected_value
                     min_value: 1
 
             - name: winner_name
-              description: The name corresponding to the winner_id 
+              description: The name corresponding to the winner_id        
 
             - name: winner_hand
-              description: R = right, L = left, U = unknown. For ambidextrous players, this is their serving hand.
+              description: R = right, L = left, U = unknown. For ambidextrous players, this is their serving hand.         
               data_tests:
                 - dbt_expectations.expect_column_values_to_be_in_set:
                     name: winner_hand_expected_values
                     value_set: ['R','L','U','A']
-                    row_condition: "winner_hand is not null"
+                    row_condition: 'winner_hand is not null'
 
             - name: winner_ioc
               description: ISO country code of winning player
               data_tests:
                 - dbt_expectations.expect_column_values_to_match_regex:
                       name: winner_ioc_matches_regex
-                      regex: '^\w{3}$'
-                      row_condition: "winner_ioc is not null"
-
+                      regex: '^\\w{3}$'
+                      row_condition: 'winner_ioc is not null'
 
             - name: loser_id
               description: the player_id to identify the loser of the match 
@@ -85,7 +84,7 @@ sources:
                       min_value: 1
 
             - name: loser_name
-              description: The name corresponding to the loser_id 
+              description: The name corresponding to the loser_id
 
             - name: loser_hand
               description: R = right, L = left, U = unknown. For ambidextrous players, this is their serving hand.
@@ -93,15 +92,15 @@ sources:
                 - dbt_expectations.expect_column_values_to_be_in_set:
                     name: loser_hand_expected_values
                     value_set: ['R','L','U', 'A']
-                    row_condition: "loser_hand is not null"
+                    row_condition: 'loser_hand is not null'
 
             - name: loser_ioc
               description: ISO country code of winning player
               data_tests:
                 - dbt_expectations.expect_column_values_to_match_regex:
                       name: loser_ioc_matches_regex
-                      regex: '^\w{3}$'
-                      row_condition: "loser_ioc is not null"
+                      regex: '^\\w{3}$'
+                      row_condition: 'loser_ioc is not null'
 
             - name: loser_age
               description: Age of losing player (decimal)
@@ -110,7 +109,7 @@ sources:
                     name: loser_age_expected_values
                     min_value: 14
                     max_value: 100
-                    row_condition: "loser_age is not null"
+                    row_condition: 'loser_age is not null'
 
             - name: score
               description: Score of the match
