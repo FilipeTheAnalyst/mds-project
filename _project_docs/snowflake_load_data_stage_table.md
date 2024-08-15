@@ -105,7 +105,8 @@ def load_data(session: snowpark.Session, database_dest, schema_dest, stage_name)
                             FROM TABLE(
                                 INFER_SCHEMA(
                                     LOCATION=>'@{stage_name}/{file_name}',
-                                    FILE_FORMAT=>'{csv_file_format}'
+                                    FILE_FORMAT=>'{csv_file_format}',
+                                    IGNORE_CASE => TRUE
                                 )
                             )
                         );
@@ -119,7 +120,7 @@ def load_data(session: snowpark.Session, database_dest, schema_dest, stage_name)
                 FILE_FORMAT = (FORMAT_NAME = '{csv_file_format}')
                 ON_ERROR = SKIP_FILE
                 PURGE = TRUE
-                MATCH_BY_COLUMN_NAME = CASE_SENSITIVE;
+                MATCH_BY_COLUMN_NAME = CASE_INSENSITIVE;
             """).collect()
 
         else:
@@ -131,7 +132,8 @@ def load_data(session: snowpark.Session, database_dest, schema_dest, stage_name)
                             FROM TABLE(
                                 INFER_SCHEMA(
                                     LOCATION=>'@{stage_name}/{file_name}',
-                                    FILE_FORMAT=>'{json_file_format}'
+                                    FILE_FORMAT=>'{json_file_format}',
+                                    IGNORE_CASE => TRUE
                                 )
                             )
                         );
@@ -144,7 +146,7 @@ def load_data(session: snowpark.Session, database_dest, schema_dest, stage_name)
                 FILE_FORMAT = (FORMAT_NAME = '{json_file_format}')
                 ON_ERROR = SKIP_FILE
                 PURGE = TRUE
-                MATCH_BY_COLUMN_NAME = CASE_SENSITIVE;
+                MATCH_BY_COLUMN_NAME = CASE_INSENSITIVE;
             """).collect()
     
     return f"Data loaded to '{database_dest}.{schema_dest}'"

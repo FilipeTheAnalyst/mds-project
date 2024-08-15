@@ -49,28 +49,35 @@ def table_exists(cursor, table_name):
 
 def atp_matches_source(cursor, table_name, year_from: int, year_to: int) -> pd.DataFrame:
     if table_exists(cursor, table_name):
-        cursor.execute(f'SELECT MAX("tourney_date") FROM {table_name}')
+        cursor.execute(f'SELECT MAX(tourney_date) FROM {table_name}')
         result = cursor.fetchone()[0]
-        result = result if result else '19680101'
+        result = result if result else 19680101
         log.info(f"Max tourney date: {result}")
     else:
-        result = '19680101'
+        result = 19680101
 
     all_matches = []
     for year in range(year_from, year_to + 1):
         matches_url = f"{BASE_URL}/{table_name}_{year}.csv"
         log.info(f"Downloading ATP matches data from: {matches_url}")
 
-        matches_df = pd.read_csv(matches_url)
-        matches_df = matches_df[matches_df['tourney_date'] > result]
-        if not matches_df.empty:
-            all_matches.append(matches_df)
+        try:
+            response = requests.get(matches_url)
+            response.raise_for_status()  # Raises an HTTPError for bad responses
+            matches_df = pd.read_csv(matches_url)
+            matches_df = matches_df[matches_df['tourney_date'] > result]
+            if not matches_df.empty:
+                all_matches.append(matches_df)
+        except requests.exceptions.HTTPError as http_err:
+            log.error(f"HTTP error occurred: {http_err} - URL: {matches_url}")
+        except Exception as err:
+            log.error(f"Other error occurred: {err} - URL: {matches_url}")
 
     return pd.concat(all_matches, ignore_index=True) if all_matches else pd.DataFrame()
 
 def atp_players_source(cursor, table_name) -> pd.DataFrame:
     if table_exists(cursor, table_name):
-        cursor.execute(f'SELECT MAX("player_id") FROM {table_name}')
+        cursor.execute(f'SELECT MAX(player_id) FROM {table_name}')
         result = cursor.fetchone()[0]
         result = result if result else 0
     else:
@@ -79,19 +86,28 @@ def atp_players_source(cursor, table_name) -> pd.DataFrame:
     players_url = f"{BASE_URL}/{table_name}.csv"
     log.info(f"Downloading ATP players data from: {players_url}")
 
-    players_df = pd.read_csv(players_url)
-    players_df = players_df[players_df['player_id'] > result]
+    try:
+        response = requests.get(players_url)
+        response.raise_for_status()  # Raises an HTTPError for bad responses
+        players_df = pd.read_csv(players_url)
+        players_df = players_df[players_df['player_id'] > result]
+    except requests.exceptions.HTTPError as http_err:
+        log.error(f"HTTP error occurred: {http_err} - URL: {players_url}")
+        players_df = pd.DataFrame()
+    except Exception as err:
+        log.error(f"Other error occurred: {err} - URL: {players_url}")
+        players_df = pd.DataFrame()
 
     return players_df if not players_df.empty else pd.DataFrame()
 
 def atp_rankings_source(cursor, table_name) -> pd.DataFrame:
     if table_exists(cursor, table_name):
-        cursor.execute(f'SELECT MAX("ranking_date") FROM {table_name}')
+        cursor.execute(f'SELECT MAX(ranking_date) FROM {table_name}')
         result = cursor.fetchone()[0]
-        result = result if result else '19680101'
+        result = result if result else 19680101
         log.info(f"Max ranking date: {result}")
     else:
-        result = '19680101'
+        result = 19680101
 
     decades = ['70', '80', '90', '00', '10', '20']
     files = [f"{table_name}_{decade}s.csv" for decade in decades]
@@ -102,10 +118,17 @@ def atp_rankings_source(cursor, table_name) -> pd.DataFrame:
         rankings_url = f"{BASE_URL}/{file_name}"
         log.info(f"Downloading ATP rankings data from: {rankings_url}")
 
-        rankings_df = pd.read_csv(rankings_url)
-        rankings_df = rankings_df[rankings_df['ranking_date'] > result]
-        if not rankings_df.empty:
-            all_rankings.append(rankings_df)
+        try:
+            response = requests.get(rankings_url)
+            response.raise_for_status()  # Raises an HTTPError for bad responses
+            rankings_df = pd.read_csv(rankings_url)
+            rankings_df = rankings_df[rankings_df['ranking_date'] > result]
+            if not rankings_df.empty:
+                all_rankings.append(rankings_df)
+        except requests.exceptions.HTTPError as http_err:
+            log.error(f"HTTP error occurred: {http_err} - URL: {rankings_url}")
+        except Exception as err:
+            log.error(f"Other error occurred: {err} - URL: {rankings_url}")
 
     return pd.concat(all_rankings, ignore_index=True) if all_rankings else pd.DataFrame()
 
@@ -113,11 +136,18 @@ def countries_data_source() -> pd.DataFrame:
     url = 'https://restcountries.com/v3.1/all'
     log.info(f"Downloading countries JSON data from: {url}")
 
-    response = requests.get(url)
-    response.raise_for_status()
-    json_data = response.json()
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        json_data = response.json()
+        countries_df = pd.json_normalize(json_data)
+    except requests.exceptions.HTTPError as http_err:
+        log.error(f"HTTP error occurred: {http_err} - URL: {url}")
+        countries_df = pd.DataFrame()
+    except Exception as err:
+        log.error(f"Other error occurred: {err} - URL: {url}")
+        countries_df = pd.DataFrame()
 
-    countries_df = pd.json_normalize(json_data)
     return countries_df
 
 if __name__ == "__main__":
