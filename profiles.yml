@@ -1,14 +1,43 @@
 atp_tour:
   outputs:
     dev:
-      type: duckdb
-      path: atp_tour.duckdb
-      schema: fbalseiro
-      threads: 1
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      database: "{{ env_var('SNOWFLAKE_DATABASE') }}"
+      password: "{{ env_var('DBT_PASSWORD') }}"
+      role: "{{ env_var('DBT_ROLE') }}"
+      schema: ANALYTICS_DEV
+      threads: 4
+      type: snowflake
+      user: "{{ env_var('DBT_USER') }}"
+      warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE') }}"
+    uat:
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      database: "{{ env_var('SNOWFLAKE_DATABASE') }}"
+      password: "{{ env_var('DBT_PASSWORD') }}"
+      role: "{{ env_var('DBT_ROLE') }}"
+      schema: ANALYTICS_UAT
+      threads: 4
+      type: snowflake
+      user: "{{ env_var('DBT_USER') }}"
+      warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE') }}"  
     ci:
-      type: duckdb
-      path: atp_tour.duckdb
-      schema: fbalseiro
-      threads: 1
-
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      database: "{{ env_var('SNOWFLAKE_DATABASE') }}"
+      password: "{{ env_var('DBT_PASSWORD') }}"
+      role: "{{ env_var('DBT_ROLE') }}"
+      schema: "{{ env_var('DBT_SCHEMA') }}"
+      threads: 4
+      type: snowflake
+      user: "{{ env_var('DBT_USER') }}"
+      warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE') }}"
+    prod:
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      database: "{{ env_var('SNOWFLAKE_DATABASE') }}"
+      password: "{{ env_var('DBT_PASSWORD') }}"
+      role: "{{ env_var('DBT_ROLE') }}"
+      schema: ANALYTICS
+      threads: 4
+      type: snowflake
+      user: "{{ env_var('DBT_USER') }}"
+      warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE') }}"
   target: dev

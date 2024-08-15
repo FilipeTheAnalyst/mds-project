@@ -45,9 +45,6 @@ docs:
 debug:
     dbt debug
 
-check-orphan-tests:
-    python3 check_orphans.py
-
 ################## LINT & FORMATTING ###########
 
 lint-sql:
@@ -74,8 +71,6 @@ dbt-check:
 dev-run:
     just test-raw
     just snapshot
-    just run-sde
-    just check-orphan-tests
     just test-warehouse
 
 prod-run:

@@ -178,22 +178,37 @@ At the end of your setup, your GitHub secrets definition should look like this:
 ![GitHub E&L secrets](/_project_docs/github_el_secrets.png)
 
 ## Transformation
-Before running `dbt` makes sure the `profiles.yml` file is setup corrently. The `path` in the file should point to your duckdb database and on mine it looks something like this `atp_tour.duckdb`.
+Before start applying transformations with `dbt` we have to make sure we perform the required steps to setup the dbt project.
 
-Test your connection and adjust your `profiles.yml` settings accordingly until you get a successful test.
-```bash
-dbt debug
+### Setup dbt Project
+
+- Execute the command `dbt debug` to check if dbt can commmunicate properly with the data platform (Snowflake)
+
+**Reminder**: every time you open a new working session, you have to run the following command to activate the virtual environment and environment variables:
+
+ ``` bash
+source .venv/dbt-atp-tour/bin/activate # Activate python virtual environment and environment variables
 ```
 
-Run the dbt project to build your models for analysis
-```bash
-dbt clean && dbt deps && dbt build
-```
+### Install dbt packages
 
-To generate and view the project documentation run the following.
-```bash
-dbt docs generate && dbt docs serve
-```
+We've included the following dbt packages to the project:
+
+1. **codegen**: Macros that generate dbt code, and log it to the command line. [Documentation](https://hub.getdbt.com/dbt-labs/codegen/latest/)
+1. **dbt_utils**: This dbt package contains macros that can be (re)used across dbt projects.[Documentation](https://hub.getdbt.com/dbt-labs/dbt_utils/latest/)
+1. **dbt_artifacts**: This package builds a mart of tables and views describing the project it is installed in. [Documentation](https://hub.getdbt.com/brooklyn-data/dbt_artifacts/latest/)
+1. **dbt_expectations**: allow dbt users to deploy GE-like (Great Expectations) tests in their data warehouse directly from dbt, vs having to add another integration with their data warehouse. [Documentation](https://hub.getdbt.com/calogica/dbt_expectations/latest/)
+
+1. **dbt_project_evaluator**: This package highlights areas of a dbt project that are misaligned with dbt Labs' best practices. Specifically, this package tests for:
+  - **Modeling**: - your dbt DAG for modeling best practices
+  - **Testing**: - your models for testing best practices
+  - **Documentation**: - your models for documentation best practices
+  - **Structure**: - your dbt project for file structure and naming best practices
+  - **Performance**: - your model materializations for performance best practices
+  - **Governance**: - your best practices for model governance features.
+
+ [Documentation](https://hub.getdbt.com/dbt-labs/dbt_project_evaluator/latest/)
+
 
 ### Use Formatter & Linter tools to define standards and avoid PR nits
 It is beneficial to have a standard style guide to ensure the code has a consistent feel.
