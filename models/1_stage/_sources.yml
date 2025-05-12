@@ -3,8 +3,8 @@ version: 2
 sources:
     - name: atp_tour_raw
       schema: raw
-      tables:    
-        - name: atp_matches
+      tables:
+        - name: matches
           description: Table with all the matches data. Each record represents a match.
           columns:
             - name: tourney_id
@@ -38,7 +38,7 @@ sources:
               data_tests:
                 - dbt_expectations.expect_column_values_to_be_in_set:
                     name: tourney_level_expected_values
-                    value_set: ['A','D','F', 'G','M']
+                    value_set: ['A', 'D', 'F', 'G', 'O', 'M']
 
             - name: tourney_date
               description: eight digits, YYYYMMDD, usually the Monday of the tournament week.

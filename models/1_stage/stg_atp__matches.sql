@@ -1,6 +1,6 @@
 WITH source AS (
     SELECT *
-    FROM {{ source('atp_tour_raw', 'atp_matches') }}
+    FROM {{ source('atp_tour_raw', 'matches') }}
 ),
 
 renamed AS (
@@ -13,8 +13,9 @@ renamed AS (
             WHEN tourney_level = 'F' THEN 'Tour finals'
             WHEN tourney_level = 'G' THEN 'Grand Slams'
             WHEN tourney_level = 'M' THEN 'Masters 1000s'
+            WHEN tourney_level = 'O' THEN 'Olympics'
+            ELSE tourney_level
         END::VARCHAR(25) AS tournament_level,
-        TO_DATE(TO_VARCHAR(tourney_date), 'YYYYMMDD') AS tournament_date,
         surface::VARCHAR(10) AS surface,
         draw_size::SMALLINT AS draw_size,
         match_num::SMALLINT AS match_id,
@@ -59,12 +60,12 @@ renamed AS (
         w_ace::TINYINT AS winner_num_of_aces,
         w_df::SMALLINT AS winner_num_of_double_faults,
         w_svpt::SMALLINT AS winner_num_of_serve_pts,
-        w_1stin::SMALLINT AS winner_num_of_1st_serves_made,
-        w_1stwon::SMALLINT AS winner_num_of_1st_serve_pts_won,
-        w_2ndwon::SMALLINT AS winner_num_of_2nd_serve_pts_won,
-        w_svgms::SMALLINT AS winner_num_of_serve_games,
-        w_bpsaved::SMALLINT AS winner_num_of_break_pts_saved,
-        w_bpfaced::SMALLINT AS winner_num_of_break_pts_faced,
+        w_1st_in::SMALLINT AS winner_num_of_1st_serves_made,
+        w_1st_won::SMALLINT AS winner_num_of_1st_serve_pts_won,
+        w_2nd_won::SMALLINT AS winner_num_of_2nd_serve_pts_won,
+        w_sv_gms::SMALLINT AS winner_num_of_serve_games,
+        w_bp_saved::SMALLINT AS winner_num_of_break_pts_saved,
+        w_bp_faced::SMALLINT AS winner_num_of_break_pts_faced,
         winner_rank::SMALLINT AS winner_rank,
         winner_rank_points::SMALLINT AS winner_rank_pts,
         loser_id::INT AS loser_id,
@@ -91,23 +92,24 @@ renamed AS (
         l_ace::TINYINT AS loser_num_of_aces,
         l_df::SMALLINT AS loser_num_of_double_faults,
         l_svpt::SMALLINT AS loser_num_of_serve_pts,
-        l_1stin::SMALLINT AS loser_num_of_1st_serves_made,
-        l_1stwon::SMALLINT AS loser_num_of_1st_serve_pts_won,
-        l_2ndwon::SMALLINT AS loser_num_of_2nd_serve_pts_won,
-        l_svgms::SMALLINT AS loser_num_of_serve_games,
-        l_bpsaved::SMALLINT AS loser_num_of_break_pts_saved,
-        l_bpfaced::SMALLINT AS loser_num_of_break_pts_faced,
+        l_1st_in::SMALLINT AS loser_num_of_1st_serves_made,
+        l_1st_won::SMALLINT AS loser_num_of_1st_serve_pts_won,
+        l_2nd_won::SMALLINT AS loser_num_of_2nd_serve_pts_won,
+        l_sv_gms::SMALLINT AS loser_num_of_serve_games,
+        l_bp_saved::SMALLINT AS loser_num_of_break_pts_saved,
+        l_bp_faced::SMALLINT AS loser_num_of_break_pts_faced,
         loser_rank::SMALLINT AS loser_rank,
         loser_rank_points::SMALLINT AS loser_rank_pts,
+        TO_DATE(TO_VARCHAR(tourney_date), 'YYYYMMDD') AS tournament_date,
         w_ace::INT + l_ace::INT AS total_num_of_aces,
         w_df::INT + l_df::INT AS total_num_of_double_faults,
         w_svpt::INT + l_svpt::INT AS total_num_of_serve_pts,
-        w_1stin::INT + l_1stin::INT AS total_num_of_1st_serves_made,
-        w_1stwon::INT + l_1stwon::INT AS total_num_of_1st_serve_pts_won,
-        w_2ndwon::INT + l_2ndwon::INT AS total_num_of_2nd_serve_pts_won,
-        w_svgms::INT + l_svgms::INT AS total_num_of_serve_games,
-        w_bpsaved::INT + l_bpsaved::INT AS total_num_of_break_pts_saved,
-        w_bpfaced::INT + l_bpfaced::INT AS total_num_of_break_pts_faced,
+        w_1st_in::INT + l_1st_in::INT AS total_num_of_1st_serves_made,
+        w_1st_won::INT + l_1st_won::INT AS total_num_of_1st_serve_pts_won,
+        w_2nd_won::INT + l_2nd_won::INT AS total_num_of_2nd_serve_pts_won,
+        w_sv_gms::INT + l_sv_gms::INT AS total_num_of_serve_games,
+        w_bp_saved::INT + l_bp_saved::INT AS total_num_of_break_pts_saved,
+        w_bp_faced::INT + l_bp_faced::INT AS total_num_of_break_pts_faced,
         ABS(winner_age::TINYINT - loser_age::TINYINT) AS age_difference
     FROM source
 ),
