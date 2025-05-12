@@ -1,13 +1,13 @@
 ################ ENVIRONMENT SETUP ###################
 # create a virtual env
 create-venv:
-    rm -rf .dbt-venv && virtualenv .dbt-venv --python=python3.11
+    rm -rf .venv && virtualenv .venv --python=python3.11
 
 ################ DBT COMMANDS ###################
 
 # Download dependencies
 deps:
-    dbt deps
+    dbt clean && dbt deps
 
 # Run Snapshot
 snapshot:
@@ -62,11 +62,12 @@ format-yml:
 ################## WORKFLOW COMMANDS ###########
 
 lint-format:
-    just format-sql
     just lint-sql
+    just format-sql
 
 dbt-check:
     pre-commit run
+    dbt build --select package:dbt_project_evaluator
 
 dev-run:
     just test-raw
@@ -76,8 +77,8 @@ dev-run:
 prod-run:
     dbt test --target prod --select "source:*"
     dbt snapshot --target prod
-    dbt run --select sde_dbt_tutorial --target prod
-    just check-orphan-tests
+    dbt build --select package:dbt_project_evaluator --target prod
+    dbt run --select mds_pipeline --target prod
     dbt test --target prod --exclude "source:*"
 
 ci:
