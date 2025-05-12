@@ -4,6 +4,7 @@
 # name or the intended use of these models
 name: 'mds_pipeline'
 version: '1.0.0'
+require-dbt-version: [">=1.8.0", "<2.0.0"]
 
 # This setting configures which "profile" dbt uses for this project.
 profile: 'atp_tour'
