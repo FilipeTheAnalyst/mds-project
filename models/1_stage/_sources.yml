@@ -114,4 +114,66 @@ sources:
             - name: score
               description: Score of the match
 
+            - name: w_bp_saved
+              data_tests:
+                - dbt_utils.accepted_range:
+                    min_value: 0
+
+            - name: w_bp_faced
+              data_tests:
+                - dbt_utils.accepted_range:
+                    min_value: 0
+
+            - name: l_bp_saved
+              data_tests:
+                - dbt_utils.accepted_range:
+                    min_value: 0
+                    severity: warn
+
+            - name: l_bp_faced
+              data_tests:
+                - dbt_utils.accepted_range:
+                    min_value: 0
+
+        - name: countries
+          description: Table with all the countries data. Each record represents a country.
+          columns:
+            - name: name__common
+              description: >
+                The common name of the country. This is the name that is most commonly used in English to refer to the country. For example, "United States" instead of "USA".
+              data_tests:
+                - unique
+            - name: cca2
+              description: >
+                The two-letter country code. This is the ISO 3166-1 alpha-2 code for the country. For example, "US" for the United States.
+              data_tests:
+                - dbt_expectations.expect_column_values_to_match_regex:
+                    name: cca2_countries_regex
+                    regex: '^\\w{2}$'
+                - unique
+            - name: cca3
+              description: >
+                The three-letter country code. This is the ISO 3166-1 alpha-3 code for the country. For example, "USA" for the United States.
+              data_tests:
+                - dbt_expectations.expect_column_values_to_match_regex:
+                    name: cca3_countries_regex
+                    regex: '^\\w{3}$'
+                - unique
+            - name: cioc
+              description: >
+                The International Olympic Committee code. This is the code used by the International Olympic Committee to identify the country. For example, "USA" for the United States.
+              data_tests:
+                - dbt_expectations.expect_column_values_to_match_regex:
+                    name: cioc_countries_regex
+                    regex: '^\\w{3}$'
+                - unique
+
+            - name: population
+              description: >
+                The population of the country. This is the number of people living in the country. For example, 331,449,000 for the United States.
+              data_tests:
+                - dbt_utils.accepted_range:
+                    min_value: 0
+                    severity: warn
+
               

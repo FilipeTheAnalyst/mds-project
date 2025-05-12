@@ -62,8 +62,8 @@ format-yml:
 ################## WORKFLOW COMMANDS ###########
 
 lint-format:
-    just lint-sql
     just format-sql
+    just lint-sql
 
 dbt-check:
     pre-commit run
@@ -77,7 +77,7 @@ dev-run:
 prod-run:
     dbt test --target prod --select "source:*"
     dbt snapshot --target prod
-    dbt build --select package:dbt_project_evaluator --target prod
+    dbt build --select package:dbt_project_evaluator --target prod --exclude package:dbt_artifacts
     dbt run --select mds_pipeline --target prod
     dbt test --target prod --exclude "source:*"
 

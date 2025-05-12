@@ -2,7 +2,8 @@
 version: 2
 models:
   - name: stg_atp__matches
-    description: Staging model for atp matches
+    description: >
+      All ATP Tour level matches from 1968 to 2024. Each row is a unique match. Data collected by Jeff Sackman here: https://github.com/JeffSackmann/tennis_atp
     data_tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:

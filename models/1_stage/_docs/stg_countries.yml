@@ -1,0 +1,15 @@
+---
+version: 2
+models:
+  - name: stg_countries
+    description: >
+      Table with all the countries data. Each record represents a country.
+    data_tests:
+      - dbt_expectations.expect_table_row_count_to_equal_other_table:
+          compare_model: source('atp_tour_raw', 'countries')
+    columns:
+      - name: cioc
+        description: >
+          The International Olympic Committee code. This is the code used by the International Olympic Committee to identify the country. For example, "USA" for the United States.
+        data_tests:
+          - unique
