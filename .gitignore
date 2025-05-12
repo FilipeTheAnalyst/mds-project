@@ -15,3 +15,4 @@ package-lock.yml
 
 #secrets
 .env
+.dlt/

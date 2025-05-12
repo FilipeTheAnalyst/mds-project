@@ -15,7 +15,7 @@ BASE_URL = "https://raw.githubusercontent.com/JeffSackmann/tennis_atp/master"
 @dlt.resource(name="players", primary_key="player_id", write_disposition="merge")
 def atp_players_source() -> Iterator[Dict]:
     """
-    A dlt resource to read ATP players data from a CSV file and load into DuckDB.
+    A dlt resource to read ATP players data from a CSV file and load into Snowflake.
     """
     players_url = f"{BASE_URL}/atp_players.csv"
     log.debug(f"Downloading ATP players data from: {players_url}")
@@ -30,7 +30,7 @@ def atp_players_source() -> Iterator[Dict]:
 @dlt.resource(name="matches", primary_key=("tourney_id", "match_num"), write_disposition="merge")
 def atp_matches_source(year_from: int, year_to: int) -> Iterator[Dict]:
     """
-    A dlt resource to read ATP matches data from multiple CSV files and load into DuckDB.
+    A dlt resource to read ATP matches data from multiple CSV files and load into Snowflake.
     """
     for year in range(year_from, year_to + 1):
         matches_url = f"{BASE_URL}/atp_matches_{year}.csv"
@@ -47,7 +47,7 @@ def atp_matches_source(year_from: int, year_to: int) -> Iterator[Dict]:
 def atp_rankings_source() -> Iterator[Dict]:
     """
     A dlt resource to read ATP rankings data from multiple CSV files (per decade and current)
-    and load into DuckDB.
+    and load into Snowflake.
     """
     decades = ['70', '80', '90', '00', '10', '20']
     files = [f"atp_rankings_{decade}s.csv" for decade in decades]
@@ -67,7 +67,7 @@ def atp_rankings_source() -> Iterator[Dict]:
 @dlt.resource(name="countries", write_disposition="replace")
 def countries_data_source() -> Iterator[Dict]:
     """
-    A dlt resource to download and read countries data from a JSON file and load into DuckDB.
+    A dlt resource to download and read countries data from a JSON file and load into Snowflake.
     """
     url = 'https://restcountries.com/v3.1/all'
     log.debug(f"Downloading countries JSON data from: {url}")
@@ -87,14 +87,14 @@ def main():
     # Create a dlt pipeline
     pipeline = dlt.pipeline(
         pipeline_name="atp_tour",
-        destination="duckdb",
+        destination="snowflake",
         dataset_name="raw"
     )
 
-    # Load data from the sources into DuckDB
+    # Load data from the sources into Snowflake
     load_info = pipeline.run([
         atp_players_source(),
-        atp_matches_source(year_from=1968, year_to=datetime.now().year),
+        atp_matches_source(year_from=1968, year_to=2024),
         atp_rankings_source(),
         countries_data_source()
     ])
